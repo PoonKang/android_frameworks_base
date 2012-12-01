@@ -1079,4 +1079,7 @@
          when starting the SoftAp -->
     <bool name="config_wifiApStartInterface">false</bool>
 
+    <!-- Boolean to enable stk functionality on Samsung phones -->
+    <bool name="config_samsung_stk">false</bool>
+
 </resources>

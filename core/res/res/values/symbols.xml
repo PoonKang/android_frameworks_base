@@ -1883,4 +1883,7 @@
   <!-- Wifi -->
   <java-symbol type="bool" name="config_wifiApStartInterface" />
   <java-symbol type="bool" name="config_wifiApFirmwareReload" />
+
+  <!-- Samsung stk -->
+  <java-symbol type="bool" name="config_samsung_stk" />
 </resources>
