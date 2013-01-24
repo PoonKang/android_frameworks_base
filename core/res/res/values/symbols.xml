@@ -1873,6 +1873,7 @@
   <java-symbol type="integer" name="config_wallpaperMaxWidth" />
 
   <!-- CM10 additions -->
+  <java-symbol type="bool" name="config_disableHomeUnlockSetting" />
   <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
 
 </resources>
