@@ -1875,5 +1875,4 @@
   <!-- CM10 additions -->
   <java-symbol type="bool" name="config_disableHomeUnlockSetting" />
   <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
-
 </resources>
