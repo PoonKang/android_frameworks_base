@@ -1872,10 +1872,11 @@
   <!-- Extra -->
   <java-symbol type="integer" name="config_wallpaperMaxWidth" />
 
-  <!-- CM10 additions -->
+
+  <!-- Config.xml entries -->
+  <java-symbol type="bool" name="config_noDelayInATwoDP" />
   <java-symbol type="bool" name="config_disableHomeUnlockSetting" />
   <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
-
   <java-symbol type="bool" name="config_hasDockBattery" />
   <java-symbol type="bool" name="config_hasRemovableLid" />
 
