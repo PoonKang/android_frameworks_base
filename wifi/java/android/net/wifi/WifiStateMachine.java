@@ -210,7 +210,7 @@ public class WifiStateMachine extends StateMachine {
     private AtomicInteger mFrequencyBand = new AtomicInteger(WifiManager.WIFI_FREQUENCY_BAND_AUTO);
 
     /* Tracks current country code */
-    private String mCountryCode = "GB";
+    private String mCountryCode = "US";
 
     /* Tracks if we are filtering Multicast v4 packets. Default is to filter. */
     private AtomicBoolean mFilteringMulticastV4Packets = new AtomicBoolean(true);
@@ -2812,9 +2812,6 @@ public class WifiStateMachine extends StateMachine {
                     break;
                 case CMD_SET_COUNTRY_CODE:
                     String country = (String) message.obj;
-                    if (DBG) log("set country code " + country);
-                    if (mWifiNative.setCountryCode(country.toUpperCase())) {
-                        mCountryCode = country;
                     String countryCode = country != null ? country.toUpperCase() : null;
                     if (DBG) log("set country code " + countryCode);
                     if (mWifiNative.setCountryCode(countryCode)) {
