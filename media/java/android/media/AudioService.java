@@ -179,8 +179,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
     /** @see VolumeStreamState */
     private VolumeStreamState[] mStreamStates;
     private SettingsObserver mSettingsObserver;
-    private boolean noDelayInATwoDP =
-            Resources.getSystem().getBoolean(com.android.internal.R.bool.config_noDelayInATwoDP);
+    //nodelay in a2dp
+    private boolean noDelayInATwoDP = Resources.getSystem().getBoolean(com.android.internal.R.bool.config_noDelayInATwoDP);
 
     private int mMode;
     // protects mRingerMode
@@ -243,7 +243,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
      * NOTE: do not create loops in aliases!
      * Some streams alias to different streams according to device category (phone or tablet) or
      * use case (in call s off call...).See updateStreamVolumeAlias() for more details
-     *  STREAM_VOLUME_ALIAS contains the default aliases for a voice capable device (phone) and
+     *  mStreamVolumeAlias contains the default aliases for a voice capable device (phone) and
      *  STREAM_VOLUME_ALIAS_NON_VOICE for a non voice capable device (tablet).*/
     private final int[] STREAM_VOLUME_ALIAS = new int[] {
         AudioSystem.STREAM_VOICE_CALL,      // STREAM_VOICE_CALL
@@ -507,9 +507,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         // Register for device connection intent broadcasts.
         IntentFilter intentFilter =
                 new IntentFilter(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED);
-        if (noDelayInATwoDP) {
+        if (noDelayInATwoDP)
             intentFilter.addAction(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED);
-        }
         intentFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
         intentFilter.addAction(Intent.ACTION_DOCK_EVENT);
         intentFilter.addAction(Intent.ACTION_USB_AUDIO_ACCESSORY_PLUG);
@@ -641,9 +640,9 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         mStreamVolumeAlias[AudioSystem.STREAM_DTMF] = dtmfStreamAlias;
 
         if (mLinkNotificationWithVolume) {
-            mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_RING;
+            STREAM_VOLUME_ALIAS[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_RING;
         } else {
-            mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
+            STREAM_VOLUME_ALIAS[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
         }
 
         if (updateVolumes) {
@@ -2198,18 +2197,18 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                 deviceList = a2dp.getConnectedDevices();
                 if (deviceList.size() > 0) {
                     btDevice = deviceList.get(0);
-                    if (!noDelayInATwoDP) {
-                        synchronized (mConnectedDevices) {
-                            int state = a2dp.getConnectionState(btDevice);
-                            int delay = checkSendBecomingNoisyIntent(
-                                                AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP,
-                                                (state == BluetoothA2dp.STATE_CONNECTED) ? 1 : 0);
-                            queueMsgUnderWakeLock(mAudioHandler,
-                                    MSG_SET_A2DP_CONNECTION_STATE,
-                                    state,
-                                    0,
-                                    btDevice,
-                                    delay);
+                    if (!noDelayInATwoDP){
+		                synchronized (mConnectedDevices) {
+		                    int state = a2dp.getConnectionState(btDevice);
+		                    int delay = checkSendBecomingNoisyIntent(
+		                                AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP,
+		                                (state == BluetoothA2dp.STATE_CONNECTED) ? 1 : 0);
+		                    queueMsgUnderWakeLock(mAudioHandler,
+		                            MSG_SET_A2DP_CONNECTION_STATE,
+		                            state,
+		                            0,
+		                            btDevice,
+		                            delay);
                         }
                     } else {
                         onSetA2dpConnectionState(btDevice, a2dp.getConnectionState(btDevice));
@@ -2628,18 +2627,19 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         }
     }
 
-    public int setBluetoothA2dpDeviceConnectionState(BluetoothDevice device, int state) {
+    public int setBluetoothA2dpDeviceConnectionState(BluetoothDevice device, int state)
+    {
         int delay;
-        if (!noDelayInATwoDP) {
-            synchronized (mConnectedDevices) {
-                delay = checkSendBecomingNoisyIntent(AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP,
-                                                (state == BluetoothA2dp.STATE_CONNECTED) ? 1 : 0);
-                queueMsgUnderWakeLock(mAudioHandler,
-                        MSG_SET_A2DP_CONNECTION_STATE,
-                        state,
-                        0,
-                        device,
-                        delay);
+        if(!noDelayInATwoDP) {
+		    synchronized (mConnectedDevices) {
+		        delay = checkSendBecomingNoisyIntent(AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP,
+		                                        (state == BluetoothA2dp.STATE_CONNECTED) ? 1 : 0);
+		        queueMsgUnderWakeLock(mAudioHandler,
+		                MSG_SET_A2DP_CONNECTION_STATE,
+		                state,
+		                0,
+		                device,
+		                delay);
             }
         } else {
             delay = 0;
@@ -3523,10 +3523,11 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                 mLinkNotificationWithVolume = Settings.System.getInt(mContentResolver,
                         Settings.System.VOLUME_LINK_NOTIFICATION, 1) == 1;
                 if (mLinkNotificationWithVolume) {
-                    mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_RING;
+                    STREAM_VOLUME_ALIAS[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_RING;
                 } else {
-                    mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
+                    STREAM_VOLUME_ALIAS[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
                 }
+                readDockAudioSettings(mContentResolver);
             }
         }
     }
@@ -3551,9 +3552,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
 
     // must be called synchronized on mConnectedDevices
     private void makeA2dpDeviceUnavailableNow(String address) {
-        if (noDelayInATwoDP) {
+        if (noDelayInATwoDP)
             onSendBecomingNoisyIntent();
-        }
         AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP,
                 AudioSystem.DEVICE_STATE_UNAVAILABLE,
                 address);
@@ -4095,10 +4095,11 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
     private void notifyTopOfAudioFocusStack() {
         // notify the top of the stack it gained focus
         if (!mFocusStack.empty() && (mFocusStack.peek().mFocusDispatcher != null)) {
-            if (canReassignAudioFocus()) {
+            String clientId = mFocusStack.peek().mClientId;
+            if (canReassignAudioFocusTo(clientId)) {
                 try {
                     mFocusStack.peek().mFocusDispatcher.dispatchAudioFocusChange(
-                            AudioManager.AUDIOFOCUS_GAIN, mFocusStack.peek().mClientId);
+                            AudioManager.AUDIOFOCUS_GAIN, clientId);
                 } catch (RemoteException e) {
                     Log.e(TAG, "Failure to signal gain of audio control focus due to "+ e);
                     e.printStackTrace();
@@ -4246,9 +4247,12 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
      * Helper function:
      * Returns true if the system is in a state where the focus can be reevaluated, false otherwise.
      */
-    private boolean canReassignAudioFocus() {
+    private boolean canReassignAudioFocusTo(String clientId) {
         // focus requests are rejected during a phone call or when the phone is ringing
         // this is equivalent to IN_VOICE_COMM_FOCUS_ID having the focus
+        if (IN_VOICE_COMM_FOCUS_ID.equals(clientId)) {
+            return true;
+        }
         if (!mFocusStack.isEmpty() && IN_VOICE_COMM_FOCUS_ID.equals(mFocusStack.peek().mClientId)) {
             return false;
         }
@@ -4293,7 +4297,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         }
 
         synchronized(mAudioFocusLock) {
-            if (!canReassignAudioFocus()) {
+            if (!canReassignAudioFocusTo(clientId)) {
                 return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
             }
 

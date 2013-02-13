@@ -146,6 +146,7 @@ public final class PowerManagerService extends IPowerManager.Stub
     // This is subtracted from the end of the screen off timeout so the
     // minimum screen off timeout should be longer than this.
     private static final int SCREEN_DIM_DURATION = 7 * 1000;
+    private static final int BUTTON_ON_DURATION = 5 * 1000;
 
     // The maximum screen dim time expressed as a ratio relative to the screen
     // off timeout.  If the screen off timeout is very short then we want the
@@ -185,6 +186,8 @@ public final class PowerManagerService extends IPowerManager.Stub
     private SettingsObserver mSettingsObserver;
     private DreamManagerService mDreamManager;
     private LightsService.Light mAttentionLight;
+    private LightsService.Light mButtonsLight;
+    private LightsService.Light mKeyboardLight;
 
     private final Object mLock = new Object();
 
@@ -340,6 +343,11 @@ public final class PowerManagerService extends IPowerManager.Stub
     // Use -1 to disable.
     private int mScreenBrightnessOverrideFromWindowManager = -1;
 
+    // The button brightness setting override from the window manager
+    // to allow the current foreground activity to override the button brightness.
+    // Use -1 to disable.
+    private int mButtonBrightnessOverrideFromWindowManager = -1;
+
     // The user activity timeout override from the window manager
     // to allow the current foreground activity to override the user activity timeout.
     // Use -1 to disable.
@@ -369,6 +377,7 @@ public final class PowerManagerService extends IPowerManager.Stub
     private static native void nativeSetInteractive(boolean enable);
     private static native void nativeSetAutoSuspend(boolean enable);
     private static native void nativeCpuBoost(int duration);
+    private boolean mKeyboardVisible = false;
 
     public PowerManagerService() {
         synchronized (mLock) {
@@ -441,6 +450,8 @@ public final class PowerManagerService extends IPowerManager.Stub
 
             mSettingsObserver = new SettingsObserver(mHandler);
             mAttentionLight = mLightsService.getLight(LightsService.LIGHT_ID_ATTENTION);
+            mButtonsLight = mLightsService.getLight(LightsService.LIGHT_ID_BUTTONS);
+            mKeyboardLight = mLightsService.getLight(LightsService.LIGHT_ID_KEYBOARD);
 
             // Register for broadcasts from other components of the system.
             IntentFilter filter = new IntentFilter();
@@ -866,6 +877,18 @@ public final class PowerManagerService extends IPowerManager.Stub
             }
         }
         return false;
+    }
+
+    // Binder call
+    public void setKeyboardVisibility(boolean visible) {
+        synchronized (mLock) {
+            if (DEBUG_SPEW) {
+                Slog.d(TAG, "setKeyboardVisibility: " + visible);
+            }
+            if (mKeyboardVisible != visible) {
+                mKeyboardVisible = visible;
+            }
+        }
     }
 
     @Override // Binder call
@@ -1294,6 +1317,19 @@ public final class PowerManagerService extends IPowerManager.Stub
                     nextTimeout = mLastUserActivityTime
                             + screenOffTimeout - screenDimDuration;
                     if (now < nextTimeout) {
+                        if (now > mLastUserActivityTime + BUTTON_ON_DURATION) {
+                            mButtonsLight.setBrightness(0);
+                            mKeyboardLight.setBrightness(0);
+                        } else {
+                            int brightness = mButtonBrightnessOverrideFromWindowManager >= 0
+                                    ? mButtonBrightnessOverrideFromWindowManager
+                                    : mDisplayPowerRequest.screenBrightness;
+                            mButtonsLight.setBrightness(brightness);
+                            mKeyboardLight.setBrightness(mKeyboardVisible ? brightness : 0);
+                            if (brightness != 0) {
+                                nextTimeout = now + BUTTON_ON_DURATION;
+                            }
+                        }
                         mUserActivitySummary |= USER_ACTIVITY_SCREEN_BRIGHT;
                     } else {
                         nextTimeout = mLastUserActivityTime + screenOffTimeout;
@@ -2036,9 +2072,24 @@ public final class PowerManagerService extends IPowerManager.Stub
      * @param brightness The overridden brightness, or -1 to disable the override.
      */
     public void setButtonBrightnessOverrideFromWindowManager(int brightness) {
-        // Do nothing.
-        // Button lights are not currently supported in the new implementation.
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER, null);
+
+        final long ident = Binder.clearCallingIdentity();
+        try {
+            setButtonBrightnessOverrideFromWindowManagerInternal(brightness);
+        } finally {
+            Binder.restoreCallingIdentity(ident);
+        }
+    }
+
+    private void setButtonBrightnessOverrideFromWindowManagerInternal(int brightness) {
+        synchronized (mLock) {
+            if (mButtonBrightnessOverrideFromWindowManager != brightness) {
+                mButtonBrightnessOverrideFromWindowManager = brightness;
+                mDirty |= DIRTY_SETTINGS;
+                updatePowerStateLocked();
+            }
+        }
     }
 
     /**
