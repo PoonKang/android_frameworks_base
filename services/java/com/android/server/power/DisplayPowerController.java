@@ -30,6 +30,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.hardware.SystemSensorManager;
+import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -40,6 +41,7 @@ import android.util.FloatMath;
 import android.util.Slog;
 import android.util.Spline;
 import android.util.TimeUtils;
+import android.view.Display;
 
 import java.io.PrintWriter;
 
@@ -767,6 +769,8 @@ final class DisplayPowerController {
             if (on) {
                 mNotifier.onScreenOn();
             } else {
+                mLights.getLight(LightsService.LIGHT_ID_BUTTONS).setBrightness(0);
+                mLights.getLight(LightsService.LIGHT_ID_KEYBOARD).setBrightness(0);
                 mNotifier.onScreenOff();
             }
         }

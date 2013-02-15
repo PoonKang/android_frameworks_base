@@ -649,9 +649,9 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         mStreamVolumeAlias[AudioSystem.STREAM_DTMF] = dtmfStreamAlias;
 
         if (mLinkNotificationWithVolume) {
-            STREAM_VOLUME_ALIAS[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_RING;
+            mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_RING;
         } else {
-            STREAM_VOLUME_ALIAS[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
+            mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
         }
 
         if (updateVolumes) {
@@ -1902,6 +1902,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         if (!checkAudioSettingsPermission("setBluetoothA2dpOn()") && noDelayInATwoDP) {
             return;
         }
+
         synchronized (mBluetoothA2dpEnabledLock) {
             mBluetoothA2dpEnabled = on;
             sendMsg(mAudioHandler, MSG_SET_FORCE_BT_A2DP_USE, SENDMSG_QUEUE,
@@ -3568,9 +3569,9 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                 mLinkNotificationWithVolume = Settings.System.getInt(mContentResolver,
                         Settings.System.VOLUME_LINK_NOTIFICATION, 1) == 1;
                 if (mLinkNotificationWithVolume) {
-                    STREAM_VOLUME_ALIAS[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_RING;
+                    mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_RING;
                 } else {
-                    STREAM_VOLUME_ALIAS[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
+                    mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
                 }
                 readDockAudioSettings(mContentResolver);
             }
@@ -3863,14 +3864,6 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                     default:
                         config = AudioSystem.FORCE_NONE;
                 }
-
-                AudioSystem.setForceUse(AudioSystem.FOR_DOCK, config);
-            } else if (action.equals(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED) && noDelayInATwoDP) {
-                state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
-                                           BluetoothProfile.STATE_DISCONNECTED);
-                BluetoothDevice btDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                onSetA2dpConnectionState(btDevice, state);
                 // Low end docks have a menu to enable or disable audio
                 // (see mDockAudioMediaEnabled)
                 if (!((dockState == Intent.EXTRA_DOCK_STATE_LE_DESK) ||
@@ -3879,6 +3872,13 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                     AudioSystem.setForceUse(AudioSystem.FOR_DOCK, config);
                 }
                 mDockState = dockState;
+            } else if (action.equals(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED) && noDelayInATwoDP) {
+                state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
+                                           BluetoothProfile.STATE_DISCONNECTED);
+                BluetoothDevice btDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                onSetA2dpConnectionState(btDevice, state);
+
             } else if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
                 state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
                                                BluetoothProfile.STATE_DISCONNECTED);
