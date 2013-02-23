@@ -2393,6 +2393,12 @@ public final class Settings {
         public static final String NFC_POLLING_MODE = "nfc_polling_mode";
 
         /**
+         * Whether to enable the built-in safe media volume for headsets
+         * @hide
+         */
+        public static final String MANUAL_SAFE_MEDIA_VOLUME = "manual_safe_media_volume";
+
+        /**
          * Pointer speed setting.
          * This is an integer value in a range between -7 and +7, so there are 15 possible values.
          *   -7 = slowest
