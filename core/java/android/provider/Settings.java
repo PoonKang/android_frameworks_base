@@ -2788,6 +2788,8 @@ public final class Settings {
             WIFI_STATIC_NETMASK,
             WIFI_STATIC_DNS1,
             WIFI_STATIC_DNS2,
+            MMS_AUTO_RETRIEVAL,
+            MMS_AUTO_RETRIEVAL_ON_ROAMING,
             BLUETOOTH_DISCOVERABILITY,
             BLUETOOTH_DISCOVERABILITY_TIMEOUT,
             DIM_SCREEN,
