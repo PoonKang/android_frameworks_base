@@ -1879,7 +1879,6 @@
   <!-- Extra -->
   <java-symbol type="integer" name="config_wallpaperMaxWidth" />
 
-
   <!-- Config.xml entries -->
   <java-symbol type="integer" name="config_backKillTimeout" />
   <java-symbol type="bool" name="config_noDelayInATwoDP" />
@@ -1900,4 +1899,8 @@
 
   <!-- Hardware Key ReMapping -->
   <java-symbol type="integer" name="config_deviceHardwareKeys" />
+
+  <!-- Profiles -->
+  <java-symbol type="xml" name="profile_default" />
+  <java-symbol type="string" name="wildcardProfile" />
 </resources>
