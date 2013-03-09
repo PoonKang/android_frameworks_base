@@ -25,8 +25,6 @@ import com.android.internal.widget.LockPatternUtils;
 import android.app.ActivityManagerNative;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.Profile;
-import android.app.ProfileManager;
 import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -250,8 +248,6 @@ public class KeyguardViewMediator implements KeyguardViewCallback {
     private int mUnlockSoundId;
     private int mLockSoundStreamId;
 
-    private ProfileManager mProfileManager;
-
     /**
      * The volume applied to the lock/unlock sounds.
      */
@@ -373,7 +369,6 @@ public class KeyguardViewMediator implements KeyguardViewCallback {
         mWakeAndHandOff.setReferenceCounted(false);
 
         mContext.registerReceiver(mBroadcastReceiver, new IntentFilter(DELAYED_KEYGUARD_ACTION));
-        mProfileManager = (ProfileManager) context.getSystemService(Context.PROFILE_SERVICE);
 
         mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 

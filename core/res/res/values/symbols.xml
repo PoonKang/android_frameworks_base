@@ -1900,10 +1900,6 @@
   <!-- Hardware Key ReMapping -->
   <java-symbol type="integer" name="config_deviceHardwareKeys" />
 
-  <!-- Profiles -->
-  <java-symbol type="xml" name="profile_default" />
-  <java-symbol type="string" name="wildcardProfile" />
-
   <!-- Power widget -->
   <java-symbol type="string" name="hour" />
   <java-symbol type="string" name="hours" />
