@@ -1931,7 +1931,6 @@ public class PhoneStatusBar extends BaseStatusBar {
     }
 
     public void topAppWindowChanged(boolean showMenu) {
-
         if (mPieControlPanel != null)
             mPieControlPanel.setMenu(showMenu);
 
