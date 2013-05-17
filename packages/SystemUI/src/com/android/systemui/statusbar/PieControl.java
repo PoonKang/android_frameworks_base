@@ -53,6 +53,7 @@ public class PieControl implements OnClickListener, NavigationCallback {
     public static final String HOME_BUTTON = "##home##";
     public static final String MENU_BUTTON = "##menu##";
     public static final String SEARCH_BUTTON = "##search##";
+    public static final String LAST_APP_BUTTON = "##lastapp##";
     public static final String RECENT_BUTTON = "##recent##";
     public static final String CLEAR_ALL_BUTTON = "##clear##";
 
@@ -65,6 +66,7 @@ public class PieControl implements OnClickListener, NavigationCallback {
     private PieItem mMenu;
     private PieItem mRecent;
     private PieItem mSearch;
+    private PieItem mLastApp;
     private OnNavButtonPressedListener mListener;
     private PieControlPanel mPanel;
 
@@ -126,7 +128,9 @@ public class PieControl implements OnClickListener, NavigationCallback {
         mBack = makeItem(R.drawable.ic_sysbar_back, 1, BACK_BUTTON, false);
         mHome = makeItem(R.drawable.ic_sysbar_home, 1, HOME_BUTTON, false);
         mRecent = makeItem(R.drawable.ic_sysbar_recent, 1, RECENT_BUTTON, false);
+        mLastApp = makeItem(R.drawable.ic_sysbar_lastapp, 1, LAST_APP_BUTTON, false);
         mMenu = makeItem(R.drawable.ic_sysbar_menu, 1, MENU_BUTTON, true);
+        mPie.addItem(mLastApp);
         mPie.addItem(mMenu);
 
         if(mIsAssistantAvailable) {

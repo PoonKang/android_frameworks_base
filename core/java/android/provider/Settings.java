@@ -2568,11 +2568,12 @@ public final class Settings {
          */
         public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
 
-        /**
-         * Restart Launcher
+         /**
+         * Expanded desktop mode
+         * 0 = none, 1 = hide only navbar, 2 = hide only statusbar, 3 = hide both
          * @hide
          */
-        public static final String EXPANDED_DESKTOP_RESTART_LAUNCHER = "expanded_desktop_restart_launcher";
+        public static final String EXPANDED_DESKTOP_MODE = "expanded_desktop_mode";
 
         /**
         * Override and forcefully disable the fullscreen keyboard
@@ -2603,6 +2604,12 @@ public final class Settings {
          * @hide
          */
         public static final String PIE_SEARCH = "pie_search";
+
+        /**
+         * Pie last app, should default to 0 (no, show only when needed)
+         * @hide
+         */
+        public static final String PIE_LAST_APP = "pie_last_app";
 
         /**
          * Pie gap angle, should default to 3
@@ -2930,19 +2937,49 @@ public final class Settings {
         public static final String HARDWARE_KEY_REBINDING = "hardware_key_rebinding";
 
          /**
-          * Action to perform when the home key is long-pressed. (Default is 2)
+          * Action to perform when the home key pressed. (Default is 1)
           * 0 - Nothing
-          * 1 - Menu
-          * 2 - App-switch
-          * 3 - Search
-          * 4 - Voice search
-          * 5 - In-app search
+          * 1 - Home
+          * 2 - Back
+          * 3 - Menu
+          * 4 - App-switch
+          * 5 - Search
+          * 6 - Voice Search
+          * 7 - In-App Search
+          * 8 - Power Off
+          * 9 - Notification shade toggle
+          * 10 - Expanded desktop toggle
+          * 11 - Kill App
+          * 12 - Last App
+          * 13 - Custom App
+          * @hide
+          */
+
+         public static final String KEY_HOME_ACTION = "key_home_action";
+
+         /**
+          * Action to perform when the home key is long pressed. (Default is 4)
+          * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
           * @hide
           */
          public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
 
          /**
-          * Action to perform when the menu key is pressed. (Default is 1)
+          * Action to perform when the back key is pressed. (Default is 2)
+          * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
+          * @hide
+          */
+         public static final String KEY_BACK_ACTION = "key_back_action";
+
+         /**
+          * Action to perform when the back key is long-pressed. (Default is 8)
+          * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
+          * @hide
+          */
+         public static final String KEY_BACK_LONG_PRESS_ACTION = "key_back_long_press_action";
+
+         /**
+          * Action to perform when the menu key is pressed. (Default is 3)
           * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
           * @hide
           */
@@ -2950,28 +2987,28 @@ public final class Settings {
 
          /**
           * Action to perform when the menu key is long-pressed.
-          * (Default is 0 on devices with a search key, 3 on devices without)
+          * (Default is 0 on devices with a search key, 5 on devices without)
           * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
           * @hide
           */
          public static final String KEY_MENU_LONG_PRESS_ACTION = "key_menu_long_press_action";
 
          /**
-          * Action to perform when the assistant (search) key is pressed. (Default is 3)
+          * Action to perform when the assistant (search) key is pressed. (Default is 5)
           * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
           * @hide
           */
          public static final String KEY_ASSIST_ACTION = "key_assist_action";
 
          /**
-          * Action to perform when the assistant (search) key is long-pressed. (Default is 4)
+          * Action to perform when the assistant (search) key is long-pressed. (Default is 6)
           * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
           * @hide
           */
          public static final String KEY_ASSIST_LONG_PRESS_ACTION = "key_assist_long_press_action";
 
          /**
-          * Action to perform when the app switch key is pressed. (Default is 2)
+          * Action to perform when the app switch key is pressed. (Default is 4)
           * (See KEY_HOME_LONG_PRESS_ACTION for valid values)
           * @hide
           */
@@ -2983,6 +3020,14 @@ public final class Settings {
           * @hide
           */
          public static final String KEY_APP_SWITCH_LONG_PRESS_ACTION = "key_app_switch_long_press_action";
+
+        /**
+         * Control the display of the action overflow button within app UI.
+         * 0 = use system default
+         * 1 = force on
+         * @hide
+         */
+        public static final String UI_FORCE_OVERFLOW_BUTTON = "ui_force_overflow_button";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -4738,6 +4783,36 @@ public final class Settings {
          */
         public static final int INCALL_POWER_BUTTON_BEHAVIOR_DEFAULT =
                 INCALL_POWER_BUTTON_BEHAVIOR_SCREEN_OFF;
+
+        /**
+         * What happens when the user presses the Home button when the
+         * phone is ringing.<br/>
+         * <b>Values:</b><br/>
+         * 1 - Nothing happens. (Default behavior)<br/>
+         * 2 - The Home button answer the current call.<br/>
+         *
+         * @hide
+         */
+        public static final String RING_HOME_BUTTON_BEHAVIOR = "ring_home_button_behavior";
+
+        /**
+         * RING_HOME_BUTTON_BEHAVIOR value for "do nothing".
+         * @hide
+         */
+        public static final int RING_HOME_BUTTON_BEHAVIOR_DO_NOTHING = 0x1;
+
+        /**
+         * RING_HOME_BUTTON_BEHAVIOR value for "answer".
+         * @hide
+         */
+        public static final int RING_HOME_BUTTON_BEHAVIOR_ANSWER = 0x2;
+
+        /**
+         * RING_HOME_BUTTON_BEHAVIOR default value.
+         * @hide
+         */
+        public static final int RING_HOME_BUTTON_BEHAVIOR_DEFAULT =
+                RING_HOME_BUTTON_BEHAVIOR_DO_NOTHING;
 
         /**
          * The current night mode that has been selected by the user.  Owned
